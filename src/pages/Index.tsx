@@ -6,7 +6,6 @@ import AboutSection from "@/components/AboutSection";
 import ProjectsSection from "@/components/ProjectsSection";
 import MediaSection from "@/components/MediaSection";
 import InsightsSection from "@/components/InsightsSection";
-import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 
 const Index = () => {
@@ -28,7 +27,6 @@ const Index = () => {
       <ProjectsSection />
       <MediaSection />
       <InsightsSection />
-      <ContactSection />
       <Footer />
     </div>
   );

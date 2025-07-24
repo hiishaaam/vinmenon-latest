@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from "@/lib/utils";
@@ -7,6 +6,8 @@ import { Menu, X } from 'lucide-react';
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  // 1. State to track the active link, initialized to the first link's href
+  const [activeLink, setActiveLink] = useState('#home');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -51,12 +52,24 @@ const Navbar = () => {
             <a
               key={link.name}
               href={link.href}
+              // 2. Set the active link on click
+              onClick={() => setActiveLink(link.href)}
               className={cn(
-                'text-sm font-medium transition-colors hover:text-secondary',
-                isScrolled ? 'text-primary' : 'text-white'
+                'relative group text-sm font-medium transition-colors',
+                // 3. Conditional styling for the link text
+                isScrolled
+                  ? (activeLink === link.href ? 'text-secondary' : 'text-primary hover:text-secondary')
+                  : 'text-white/80 hover:text-white'
               )}
             >
               {link.name}
+              <span className={cn(
+                'absolute -bottom-1 left-0 h-0.5 bg-secondary transition-all duration-300',
+                // 4. Conditional styling for the underline
+                isScrolled && activeLink === link.href
+                  ? 'w-full' // Always show underline if active and scrolled
+                  : 'w-0 group-hover:w-full' // Otherwise, only show on hover
+              )}></span>
             </a>
           ))}
         </nav>
@@ -83,7 +96,10 @@ const Navbar = () => {
                   key={link.name}
                   href={link.href}
                   className="text-primary hover:text-secondary text-lg font-medium"
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={() => {
+                    setActiveLink(link.href);
+                    setMobileMenuOpen(false);
+                  }}
                 >
                   {link.name}
                 </a>

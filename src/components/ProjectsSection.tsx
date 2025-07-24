@@ -55,28 +55,32 @@ const ProjectsSection = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {projects.map((project, index) => (
-            <Card key={index} className="overflow-hidden animate-on-scroll border-0 shadow-lg">
-              <div className="h-64 overflow-hidden">
-                <img 
+            <Card
+              key={index}
+              className="overflow-hidden rounded-xl shadow-md shadow-slate-200 bg-white p-0 flex flex-col transition-all duration-300 ease-in-out hover:-translate-y-1.5 hover:bg-slate-50 animate-on-scroll min-h-[500px]"
+            >
+              {/* Image section */}
+              <div className="h-64 w-full overflow-hidden">
+                <img
                   src={project.imageUrl}
                   alt={project.title}
-                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                 />
               </div>
-              <CardContent className="p-6">
-                <h3 className="text-2xl font-bold mb-3 text-primary">{project.title}</h3>
-                <p className="text-muted-foreground">{project.description}</p>
+              {/* Content section */}
+              <CardContent className="p-8 flex-1 flex flex-col">
+                <h3 className="font-inter text-2xl font-semibold text-[#0F172A] mb-3 tracking-tight">{project.title}</h3>
+                <p className="font-inter text-base text-slate-600 mb-6 flex-1">{project.description}</p>
+                <div className="mt-auto">
+                  <button
+                    onClick={() => handleOpenDialog(index)}
+                    className="inline-flex items-center border border-slate-300 rounded-full px-4 py-2 font-inter text-base text-[#0F172A] transition-all duration-300 group hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-700"
+                  >
+                    Learn More
+                    <ArrowRight size={18} className="ml-2 transition-transform duration-300 group-hover:translate-x-1" />
+                  </button>
+                </div>
               </CardContent>
-              <CardFooter className="pb-6 px-6">
-                <Button 
-                  variant="outline" 
-                  className="bg-white text-primary hover:text-white hover:bg-secondary text-base md:text-lg"
-                  onClick={() => handleOpenDialog(index)}
-                >
-                  Learn More
-                  <ArrowRight size={16} className="ml-2 transition-transform group-hover:translate-x-1" />
-                </Button>
-              </CardFooter>
             </Card>
           ))}
         </div>
@@ -84,63 +88,37 @@ const ProjectsSection = () => {
         {/* Project Detail Dialog */}
         {openProjectIndex !== null && (
           <Dialog open={openProjectIndex !== null} onOpenChange={handleCloseDialog}>
-            <DialogContent className="sm:max-w-[500px] h-[90vh] overflow-hidden">
-              <DialogHeader>
-                <DialogTitle className="text-2xl font-bold text-primary">
+            <DialogContent className="fixed left-1/2 top-1/2 z-50 bg-white/80 backdrop-blur-2xl rounded-2xl sm:rounded-3xl shadow-2xl p-2 sm:p-10 max-w-full sm:max-w-lg w-[95vw] sm:w-full translate-x-[-50%] translate-y-[-50%] animate-fade-in max-h-[90vh] overflow-y-auto">
+              <DialogHeader className="mb-2">
+                <DialogTitle className="text-2xl sm:text-3xl font-bold text-[#0F172A] font-inter flex items-center gap-2">
                   {projects[openProjectIndex].title}
+                  {/* Emerald accent dot */}
+                  <span className="block w-2 h-2 bg-emerald-400 rounded-full"></span>
                 </DialogTitle>
               </DialogHeader>
-              <div className="my-4 overflow-y-auto h-full pr-2">
-                <img 
-                  src={projects[openProjectIndex].imageUrl}
-                  alt={projects[openProjectIndex].title}
-                  className="w-full h-64 object-cover rounded-md mb-4"
-                />
-                <DialogDescription className="text-base leading-relaxed">
-                  {projects[openProjectIndex].description}
-                  
-                  {/* Additional project details that would only appear in the modal */}
-                  <div className="mt-4">
-                    <h4 className="font-semibold text-lg mb-2"></h4>
-                    <p>
-                      {projects[openProjectIndex].title === "AQUAE Labs" 
-                        ? "Aquae Labs Ecosystems Conservation Index (ALECI) : Guaranteed Conservation Credits While we all agree that conservation of biodiversity and the conservation of ecosystem services are critical for our sustainability, the value of this activity has not been recognized as a vital component of our commitment to enhancing and preserving biodiversity. ALECI is an index that reflects an annually verified composite of environmental and social variables as landscape assets backed by its Biodiversity & Biomass which is Monitored Recorded & Validated (MRV’d) and value set (VS) as a financial tool."
-                        : projects[openProjectIndex].title === "MindWaveDAO"
-                        ? "MindWaveDAO is building a decentralized ecosystem of mental health resources that prioritizes user privacy, data ownership, and equitable access to therapeutic tools."
-                        : "ALECI datasets include scope and derivatives guaranteed by MRV and Value Setting (VS) protocols and each landscape portfolio is placed in blockchain record in order to trace the source for its ecosystem productivity backed ‘credits’ issued immutable via ALECI operating system. These assets are monitored under contract to ensure accurate compliance with these metrics being produced as ‘private property’ within financial and legislative ecosystems. ALECI provides stakeholders with detailed metadata of the contracts."
-                      }
-                    </p>
-                    
-                    <h4 className="font-semibold text-lg mt-4 mb-2"></h4>
-                    <p>
-                      {projects[openProjectIndex].title === "AQUAE Labs" 
-                        ? "Tokenized 'conservation credits' issued using the ALECI represents the value achieved through habitat restoration and species conservation efforts. By engaging in contracted conservation credits, organizations and individuals can support targeted environmental projects that restore ecosystems, protect endangered species, and promote sustainable land management. When you purchase or invest in these credits, you are directly contributing to verified conservation actions and receiving a measurable impact report. This process ensures transparency and accountability, demonstrating how your investment is making a tangible difference in biodiversity conservation"
-                        : projects[openProjectIndex].title === "MindWaveDAO"
-                        ? "the platform employs sophisticated AI-driven trading strategies—such as covered calls, volatility trading, and negative gamma techniques—to provide stable, risk-adjusted returns for its ecosystem . A significant portion of its assets is also allocated to liquidity provision and market-making in vetted DeFi projects, enhancing market stability and efficiency"
-                        : "ALECI system offers clear insights into the sustainability and impact of the assets, supporting informed decision-making and promoting transparency suitable for any emerging market. "
-                      }
-                    </p>
-
-                    <h4 className="font-semibold text-lg mt-4 mb-2"></h4>
-                    <p>
-                      {projects[openProjectIndex].title === "AQUAE Labs" 
-                        ? "Our platform facilitates the trading and management of tokenzed ALECI conservation credits, enabling stakeholders to participate in emerging markets and focussing on financing the conservation of biodiversity. By integrating ALECI guaranteed conservation credits into your environmental strategy, yougain clear insights to positive impacts to your business while supporting informed decision-making and promoting transparency suitable for any emerging market."
-                        : projects[openProjectIndex].title === "MindWaveDAO"
-                        ? "Central to MindWaveDAO's ecosystem is the NILA Token, a BEP-20 utility token that empowers holders with governance rights, staking rewards, and access to premium features. NILA Tokens enable users to participate in decision-making processes, earn from ecosystem transactions, and engage with immersive AR/VR experiences and personalized NFTs . The platform's innovative approach extends to sectors like AdTech, InsurTech, AI Governance, and ClimateTech, aiming to transform digital interactions into sustainable value."
-                        : "The measurement tool identified herewith as 'ALECI' provides a comprehensive end - to - end operating protocol and methodological approach for evaluating landscape based ‘conservation assets’. This system validates such asset management by integrating comprehensive MRV processes with datasets and derivative valuations. The ALECI framework provides a model that is sensitive to the changing ecological realities of a given ecosystem and reflects on the dynamic nature of the distribution patterns of many species and ecological services."
-                      }
-                    </p>
-                  </div>
-                </DialogDescription>
-              </div>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="outline">Close</Button>
-                </DialogClose>
-                <Button onClick={() => window.location.href = projects[openProjectIndex].link}>
+              <img
+                src={projects[openProjectIndex].imageUrl}
+                alt={projects[openProjectIndex].title}
+                className="w-full rounded-xl mb-4 sm:mb-6 shadow max-h-40 sm:max-h-64 object-cover"
+              />
+              {projects[openProjectIndex].title === "AQUAE Labs" ? (
+                <div className="space-y-4 text-base text-slate-600 font-inter mb-6">
+                  <p>We Are A Collective Of Dedicated Individuals Deeply Invested In The Restoration Of Our Planet With A Passion For Environmental Stewardship. We invite you to join us to realize the value of conservation using tokenized credit</p>
+                  <p>Aquae Labs Ecosystems Conservation Index (ALECI) : Guaranteed Conservation Credits While we all agree that conservation of biodiversity and the conservation of ecosystem services are critical for our sustainability, the value of this activity has not been recognized as a vital component of our commitment to enhancing and preserving biodiversity. ALECI is an index that reflects an annually verified composite of environmental and social variables as landscape assets backed by its Biodiversity & Biomass which is Monitored Recorded & Validated (MRV’d) and value set (VS) as a financial tool.</p>
+                  <p>Tokenized 'conservation credits' issued using the ALECI represents the value achieved through habitat restoration and species conservation efforts. By engaging in contracted conservation credits, organizations and individuals can support targeted environmental projects that restore ecosystems, protect endangered species, and promote sustainable land management. When you purchase or invest in these credits, you are directly contributing to verified conservation actions and receiving a measurable impact report. This process ensures transparency and accountability, demonstrating how your investment is making a tangible difference in biodiversity conservation</p>
+                  <p>Our platform facilitates the trading and management of tokenzed ALECI conservation credits, enabling stakeholders to participate in emerging markets and focussing on financing the conservation of biodiversity. By integrating ALECI guaranteed conservation credits into your environmental strategy, yougain clear insights to positive impacts to your business while supporting informed decision-making and promoting transparency suitable for any emerging market.</p>
+                </div>
+              ) : (
+                <div className="space-y-4 text-base text-slate-600 font-inter mb-6">
+                  <p>{projects[openProjectIndex].description}</p>
+                </div>
+              )}
+              <div className="flex flex-col sm:flex-row gap-3 mt-6 justify-end">
+                <a href={projects[openProjectIndex].link} target="_blank" rel="noopener noreferrer" className="border border-emerald-300 bg-emerald-50 rounded-full px-4 py-2 text-emerald-700 font-semibold hover:bg-emerald-100 transition-all flex items-center group justify-center">
                   Visit Project
-                </Button>
-              </DialogFooter>
+                  <ArrowRight className="ml-2 transition-transform group-hover:translate-x-1" />
+                </a>
+              </div>
             </DialogContent>
           </Dialog>
         )}
