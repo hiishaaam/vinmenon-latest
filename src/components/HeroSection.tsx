@@ -1,30 +1,199 @@
 
-import React, { useEffect, useState } from 'react';
-import { ArrowRight, Clock, Rocket, Mic, DollarSign } from 'lucide-react';
+import React, { useEffect, useState, useRef } from 'react';
+import { ArrowRight, Clock, Rocket, Mic, DollarSign, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
+
+// Highlight item interface
+interface HighlightItem {
+  icon: React.ComponentType<{ className?: string }>;
+  text: string;
+  id: string;
+}
+
+// Highlight item component
+const HighlightItem: React.FC<{
+  highlight: HighlightItem;
+  isActive: boolean;
+  index: number;
+  onClick: () => void;
+  activeHighlightIndex: number;
+}> = ({ highlight, isActive, index, onClick, activeHighlightIndex }) => {
+  const IconComponent = highlight.icon;
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+      className={cn(
+        "highlight-item relative flex items-center gap-3 p-3 rounded-xl transition-all duration-500 cursor-pointer group",
+        isActive 
+          ? "bg-gradient-to-r from-white/25 to-white/15 backdrop-blur-md scale-105 shadow-lg shadow-white/20 border border-white/30" 
+          : "bg-transparent hover:bg-white/5 hover:scale-102"
+      )}
+      onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      tabIndex={0}
+      role="button"
+      aria-label={`Select highlight: ${highlight.text}`}
+      aria-pressed={isActive}
+    >
+      {/* Subtle glow effect for active item */}
+      <div 
+        className={cn(
+          "absolute inset-0 bg-gradient-to-r from-white/10 to-transparent rounded-xl transition-opacity duration-200",
+          isActive ? "opacity-100" : "opacity-0"
+        )}
+      />
+      
+      <motion.div 
+        className={cn(
+          "flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500",
+          isActive 
+            ? "bg-white/30 shadow-lg" 
+            : "bg-white/15 group-hover:bg-white/25"
+        )}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <IconComponent className={cn(
+          "transition-all duration-500",
+          isActive ? "text-white w-6 h-6" : "text-white/80 w-5 h-5 group-hover:text-white"
+        )} />
+      </motion.div>
+      
+      <motion.p 
+        className={cn(
+          "text-sm md:text-base font-medium transition-all duration-500",
+          isActive ? "text-white" : "text-white/80 group-hover:text-white"
+        )}
+        animate={{ 
+          opacity: isActive ? 1 : 0.8,
+          x: isActive ? 0 : -2
+        }}
+      >
+        {highlight.text}
+      </motion.p>
+    </motion.div>
+  );
+};
+
+// Navigation dots component
+const NavigationDots: React.FC<{
+  total: number;
+  active: number;
+  onDotClick: (index: number) => void;
+}> = ({ total, active, onDotClick }) => {
+  return (
+    <div className="flex justify-center gap-2 mt-4" role="tablist" aria-label="Highlight navigation">
+      {Array.from({ length: total }).map((_, index) => (
+        <button
+          key={index}
+          onClick={() => onDotClick(index)}
+          className={cn(
+            "w-2 h-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50",
+            active === index ? "bg-white scale-125" : "bg-white/40 hover:bg-white/60"
+          )}
+          role="tab"
+          aria-selected={active === index}
+          aria-label={`Go to highlight ${index + 1}`}
+        />
+      ))}
+    </div>
+  );
+};
 
 const HeroSection = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [activeHighlight, setActiveHighlight] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
-  const highlights = [
-    "20+ years in tech, strategy & innovation",
-    "Co-Founder of AQUAE Labs and MindWaveDAO",
-    "Speaker at UNGA, APEA, and Forbes Councils",
-    "$2.4B+ in Bitcoin-based ecosystem initiatives"
+  // Enhanced highlights data structure
+  const highlights: HighlightItem[] = [
+    {
+      icon: Clock,
+      text: "20+ years in tech, strategy & innovation",
+      id: "experience"
+    },
+    {
+      icon: Rocket,
+      text: "Co-Founder of AQUAE Labs and MindWaveDAO",
+      id: "leadership"
+    },
+    {
+      icon: Mic,
+      text: "Speaker at UNGA, APEA, and Forbes Councils",
+      id: "speaking"
+    },
+    {
+      icon: DollarSign,
+      text: "$2.4B+ in Bitcoin-based ecosystem initiatives",
+      id: "impact"
+    }
   ];
+  
+  // Start rotation
+  const startRotation = () => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => {
+      setActiveHighlight(prev => (prev + 1) % highlights.length);
+    }, 2000);
+  };
+  
+  // Stop rotation
+  const stopRotation = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  };
+  
+  // Handle manual navigation
+  const handleDotClick = (index: number) => {
+    setActiveHighlight(index);
+    // Restart rotation from new position
+    stopRotation();
+    setTimeout(startRotation, 100);
+  };
+  
+  // Handle keyboard navigation
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      const newIndex = activeHighlight === 0 ? highlights.length - 1 : activeHighlight - 1;
+      handleDotClick(newIndex);
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      const newIndex = (activeHighlight + 1) % highlights.length;
+      handleDotClick(newIndex);
+    }
+  };
   
   useEffect(() => {
     setIsVisible(true);
+    startRotation();
     
-    // Rotate through highlights
-    const interval = setInterval(() => {
-      setActiveHighlight(prev => (prev + 1) % highlights.length);
-    }, 3000);
-    
-    return () => clearInterval(interval);
+    return () => {
+      stopRotation();
+    };
   }, []);
+  
+  // Pause/resume based on isPaused state
+  useEffect(() => {
+    if (isPaused) {
+      stopRotation();
+    } else {
+      startRotation();
+    }
+  }, [isPaused]);
 
   return (
     <section id="home" className="relative min-h-screen flex flex-col md:flex-row md:items-center bg-primary overflow-hidden">
@@ -52,36 +221,36 @@ const HeroSection = () => {
       {/* Content container */}
       <div className="container mx-auto relative z-10 flex-1 flex flex-col justify-center mt-3">
         <div className="max-w-3xl">
-          <h2 
-            className={cn(
-              "text-sm sm:text-base md:text-lg font-medium text-white/80 opacity-0",
-              isVisible && "animate-fade-in"
-            )}
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="text-sm sm:text-base md:text-lg font-medium text-white"
           >
             Global Entrepreneur & Thought Leader
-          </h2>
-          <h1 
-            className={cn(
-              "text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mt-2 mb-4 font-playfair opacity-0",
-              isVisible && "animate-fade-in-delayed"
-            )}
+          </motion.h2>
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
+            transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mt-2 mb-4 font-playfair"
           >
             Dr. Vin Menon
-          </h1>
-          <p 
-            className={cn(
-              "text-lg sm:text-xl md:text-2xl text-white/90 max-w-xl mb-8 md:mb-12 opacity-0",
-              isVisible && "animate-fade-in-delayed-lg"
-            )}
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
+            transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
+            className="text-lg sm:text-xl md:text-2xl text-white/90 max-w-xl mb-8 md:mb-12"
           >
             Pioneering regenerative technologies and sustainable finance solutions for global impact
-          </p>
+          </motion.p>
           
-          <div 
-            className={cn(
-              "flex flex-col sm:flex-row gap-4 opacity-0",
-              isVisible && "animate-fade-in-delayed-lg"
-            )}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
+            transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
+            className="flex flex-col sm:flex-row gap-4"
           >
             <Button 
               size="lg" 
@@ -99,14 +268,14 @@ const HeroSection = () => {
             >
               Get in Touch
             </Button>
-          </div>
+          </motion.div>
           
           {/* UN SDG icon */}
-          <div 
-            className={cn(
-              "mt-16 mb-4 md:mt-24 opacity-0",
-              isVisible && "animate-fade-in-delayed-lg"
-            )}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
+            transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
+            className="mt-16 mb-4 md:mt-24"
           >
             <p className="text-white/70 text-sm mb-3">Proud contributor to</p>
             <div className="flex items-center gap-4">
@@ -117,35 +286,81 @@ const HeroSection = () => {
               </div>
               <p className="text-white/90 text-sm md:text-base w-44">UN Sustainable Development Goals</p>
             </div>
-          </div>
+          </motion.div>
+          
           {/* Professional Highlights */}
-          <div 
-            className={cn(
-              "bg-white/10 backdrop-blur-sm rounded-lg p-4 mb-8 border border-white/20 opacity-0",
-              isVisible && "animate-fade-in-delayed-lg"
-            )}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
+            transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
+            className="bg-white/20 backdrop-blur-sm rounded-lg p-4 mb-8 border border-white/20 shadow-lg shadow-white/10 relative"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+            onFocus={() => setIsPaused(true)}
+            onBlur={() => setIsPaused(false)}
+            onKeyDown={handleKeyDown}
+            tabIndex={0}
+            role="region"
+            aria-label="Professional highlights carousel"
           >
-            <h3 className="text-white/80 text-sm uppercase tracking-wider mb-3 font-medium">Professional Highlights</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <h3 className="text-white text-sm uppercase tracking-wider mb-3 font-medium">Professional Highlights</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 relative">
               {highlights.map((highlight, index) => (
-                <div 
-                  key={index}
-                  className={cn(
-                    "flex items-center gap-2 p-2 rounded transition-all duration-300",
-                    activeHighlight === index ? "bg-white/20 scale-105" : "bg-transparent"
-                  )}
-                >
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                    {index === 0 && <Clock className="text-white w-5 h-5" />}
-                    {index === 1 && <Rocket className="text-white w-5 h-5" />}
-                    {index === 2 && <Mic className="text-white w-5 h-5" />}
-                    {index === 3 && <DollarSign className="text-white w-5 h-5" />}
-                  </div>
-                  <p className="text-white text-sm md:text-base">{highlight}</p>
-                </div>
+                <HighlightItem
+                  key={highlight.id}
+                  highlight={highlight}
+                  isActive={activeHighlight === index}
+                  index={index}
+                  onClick={() => handleDotClick(index)}
+                  activeHighlightIndex={activeHighlight}
+                />
               ))}
             </div>
-          </div>
+            
+            {/* Manual navigation arrows */}
+            <div className="flex justify-between items-center mt-4">
+              <button
+                onClick={() => {
+                  const newIndex = activeHighlight === 0 ? highlights.length - 1 : activeHighlight - 1;
+                  handleDotClick(newIndex);
+                }}
+                className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white/50"
+                aria-label="Previous highlight"
+              >
+                <ChevronLeft className="text-white w-4 h-4" />
+              </button>
+              
+              <NavigationDots
+                total={highlights.length}
+                active={activeHighlight}
+                onDotClick={handleDotClick}
+              />
+              
+              <button
+                onClick={() => {
+                  const newIndex = (activeHighlight + 1) % highlights.length;
+                  handleDotClick(newIndex);
+                }}
+                className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white/50"
+                aria-label="Next highlight"
+              >
+                <ChevronRight className="text-white w-4 h-4" />
+              </button>
+            </div>
+            
+            {/* Pause indicator */}
+            {isPaused && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute top-2 right-2 text-white/60 text-xs"
+              >
+                Paused
+              </motion.div>
+            )}
+          </motion.div>
         </div>
       </div>
     </section>

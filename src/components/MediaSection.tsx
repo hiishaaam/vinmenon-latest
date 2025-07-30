@@ -57,9 +57,9 @@ const MediaSection = () => {
   const videoHighlights = [
     {
       title: "UN General Assembly Talk (2023)",
-      thumbnail: "/images/video-unga.jpg", // You'll need to add these images to your public folder
+      thumbnail: "/images/video-unga.jpg",
       description: "Dr. Menon addresses global leaders on sustainable technology solutions",
-      link: "#" // Replace with actual video link when available
+      link: "#"
     },
     {
       title: "ALCI Green Credits Demo @ Climate Impact Asia",
@@ -99,44 +99,45 @@ const MediaSection = () => {
     };
     const stopScroll = () => { if (interval) clearInterval(interval); };
 
-    // Touch/drag support
     const onPointerDown = (e: PointerEvent) => {
       isDragging = true;
-      container.classList.add('dragging');
-      startX = e.type === 'touchstart' ? (e as any).touches[0].pageX : e.pageX;
+      startX = e.pageX - container.offsetLeft;
       scrollLeft = container.scrollLeft;
+      container.style.cursor = 'grabbing';
+      container.style.userSelect = 'none';
     };
+
     const onPointerMove = (e: PointerEvent) => {
       if (!isDragging) return;
-      const x = e.type === 'touchmove' ? (e as any).touches[0].pageX : e.pageX;
-      const walk = (startX - x);
-      container.scrollLeft = scrollLeft + walk;
+      e.preventDefault();
+      const x = e.pageX - container.offsetLeft;
+      const walk = (x - startX) * 2;
+      container.scrollLeft = scrollLeft - walk;
     };
+
     const onPointerUp = () => {
       isDragging = false;
-      container.classList.remove('dragging');
+      container.style.cursor = 'grab';
+      container.style.removeProperty('user-select');
     };
+
     container.addEventListener('pointerdown', onPointerDown);
     container.addEventListener('pointermove', onPointerMove);
     container.addEventListener('pointerup', onPointerUp);
     container.addEventListener('pointerleave', onPointerUp);
-    container.addEventListener('touchstart', onPointerDown);
-    container.addEventListener('touchmove', onPointerMove);
-    container.addEventListener('touchend', onPointerUp);
-    container.addEventListener('mouseenter', () => { isHovered = true; });
-    container.addEventListener('mouseleave', () => { isHovered = false; });
+    container.addEventListener('mouseenter', () => { isHovered = true; stopScroll(); });
+    container.addEventListener('mouseleave', () => { isHovered = false; startScroll(); });
+
     startScroll();
+
     return () => {
       stopScroll();
       container.removeEventListener('pointerdown', onPointerDown);
       container.removeEventListener('pointermove', onPointerMove);
       container.removeEventListener('pointerup', onPointerUp);
       container.removeEventListener('pointerleave', onPointerUp);
-      container.removeEventListener('touchstart', onPointerDown);
-      container.removeEventListener('touchmove', onPointerMove);
-      container.removeEventListener('touchend', onPointerUp);
-      container.removeEventListener('mouseenter', () => { isHovered = true; });
-      container.removeEventListener('mouseleave', () => { isHovered = false; });
+      container.removeEventListener('mouseenter', () => { isHovered = true; stopScroll(); });
+      container.removeEventListener('mouseleave', () => { isHovered = false; startScroll(); });
     };
   }, []);
 
@@ -162,7 +163,6 @@ const MediaSection = () => {
                 <CardContent className="p-6 flex flex-col h-full">
                   <div className="flex items-center mb-4 gap-3">
                     <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-emerald-50 group-hover:shadow-lg group-hover:shadow-emerald-200/40 transition-transform duration-300 group-hover:scale-110">
-                      {/* Use SVG or image-based icon if available, fallback to Lucide */}
                       {item.icon}
                     </span>
                     <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium gap-1
@@ -170,7 +170,6 @@ const MediaSection = () => {
                         item.type === 'speaking' ? 'bg-blue-100 text-blue-800' :
                         'bg-emerald-100 text-emerald-800'}`}
                     >
-                      {/* Tag icon (Lucide fallback) */}
                       {item.type === 'award' && <Award className="w-4 h-4 mr-1" />}
                       {item.type === 'speaking' && <Mic className="w-4 h-4 mr-1" />}
                       {item.type === 'article' && <Newspaper className="w-4 h-4 mr-1" />}
@@ -185,50 +184,27 @@ const MediaSection = () => {
           </div>
         </div>
         
-        {/* Video Highlights Section */}
-        {/* <div className="mb-16">
-          <h3 className="text-2xl font-bold text-primary mb-6 animate-on-scroll">Video Highlights</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {videoHighlights.map((video, index) => (
-              <div key={index} className="animate-on-scroll group">
-                <div className="relative overflow-hidden rounded-lg mb-3 aspect-video bg-gray-100">
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Video className="w-12 h-12 text-white" />
-                  </div>
-                  <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                    <span className="text-gray-500">Video Thumbnail</span>
-                  </div>
-                </div>
-                <h4 className="text-lg font-bold text-primary mb-1">{video.title}</h4>
-                <p className="text-sm text-muted-foreground">{video.description}</p>
-              </div>
-            ))}
-          </div>
-        </div> */}
-        
-        {/* Previous Media Mentions */}
+        {/* Additional Media Coverage */}
         <div>
           <h3 className="text-2xl font-bold text-primary mb-6 animate-on-scroll">Additional Media Coverage</h3>
-          <div className="w-full overflow-x-auto pb-2 scrollbar-none" ref={scrollRef} role="region" aria-live="polite" style={{ WebkitOverflowScrolling: 'touch' }}>
-          <div className="flex flex-row gap-x-6 scroll-snap-x snap-x snap-mandatory px-1">
-            {features.map((feature, index) => (
-              <article
-                key={index}
-                className="group relative min-w-[280px] max-w-xs w-full bg-[#d1fae5] backdrop-blur-md rounded-2xl shadow-md transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-2xl border-2 border-transparent hover:border-emerald-300 snap-center flex-shrink-0 flex flex-col items-start px-6 py-5 animate-fade-in-up"
-                role="article"
-                aria-label={`${feature.name} - ${feature.topic}`}
-                style={{ scrollSnapAlign: 'center' }}
-              >
-                {/* Optional icon/chip top-left */}
-                {/* <span className="absolute top-4 left-4 ...">Icon/Chip</span> */}
-                <span className="text-sm text-black font-medium mb-2">{feature.year}</span>
-                <h3 className="font-inter text-xl font-bold text-black mb-1">{feature.name}</h3>
-                <p className="font-inter text-base text-black mb-0">{feature.topic}</p>
-              </article>
-            ))}
+          <div className="w-full overflow-x-auto pb-2 scrollbar-none" ref={scrollRef} role="region" aria-live="polite" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            <div className="flex flex-row gap-x-6 scroll-snap-x snap-x snap-mandatory px-1">
+              {features.map((feature, index) => (
+                <article
+                  key={index}
+                  className="group relative min-w-[280px] max-w-xs w-full bg-[#d1fae5] backdrop-blur-md rounded-2xl shadow-md transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-2xl border-2 border-transparent hover:border-emerald-300 snap-center flex-shrink-0 flex flex-col items-start px-6 py-5 animate-fade-in-up"
+                  role="article"
+                  aria-label={`${feature.name} - ${feature.topic}`}
+                  style={{ scrollSnapAlign: 'center' }}
+                >
+                  <span className="text-sm text-black font-medium mb-2">{feature.year}</span>
+                  <h3 className="font-inter text-xl font-bold text-black mb-1">{feature.name}</h3>
+                  <p className="font-inter text-base text-black mb-0">{feature.topic}</p>
+                </article>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
       </div>
     </section>
   );
