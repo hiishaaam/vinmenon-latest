@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState, useRef } from 'react';
-import { ArrowRight, Clock, Rocket, Mic, DollarSign, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, Clock, Rocket, Mic, DollarSign, ChevronLeft, ChevronRight, Globe, Award } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -140,6 +140,16 @@ const HeroSection = () => {
       icon: DollarSign,
       text: "$3B+ initiatives through MindWaveDAO.com",
       id: "impact"
+    },
+    {
+      icon: Globe,
+      text: "Multiple Succesfull exits to Private Equity and Public Companies",
+      id: "global-reach"
+    },
+    {
+      icon: Award,
+      text: "",
+      id: "awards"
     }
   ];
   
