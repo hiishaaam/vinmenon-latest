@@ -128,7 +128,7 @@ const HeroSection = () => {
     },
     {
       icon: Rocket,
-      text: "Co-Founder of AQUAE Labs and MindWaveDAO.com",
+      text: "Co-Founder of AQUAE group of companies and MindWaveDAO.com",
       id: "leadership"
     },
     {
