@@ -138,7 +138,7 @@ const HeroSection = () => {
     },
     {
       icon: DollarSign,
-      text: "$3B+ initiatives through MinndWaveDAO.com",
+      text: "$3B+ initiatives through MindWaveDAO.com",
       id: "impact"
     }
   ];
