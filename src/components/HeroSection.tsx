@@ -43,7 +43,7 @@ const HighlightItem: React.FC<{
       tabIndex={0}
       role="button"
       aria-label={`Select highlight: ${highlight.text}`}
-      aria-pressed={isActive}
+      aria-pressed={isActive ? "true" : "false"}
     >
       {/* Subtle glow effect for active item */}
       <div 
@@ -93,19 +93,22 @@ const NavigationDots: React.FC<{
 }> = ({ total, active, onDotClick }) => {
   return (
     <div className="flex justify-center gap-2 mt-4" role="tablist" aria-label="Highlight navigation">
-      {Array.from({ length: total }).map((_, index) => (
-        <button
-          key={index}
-          onClick={() => onDotClick(index)}
-          className={cn(
-            "w-2 h-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50",
-            active === index ? "bg-white scale-125" : "bg-white/40 hover:bg-white/60"
-          )}
-          role="tab"
-          aria-selected={active === index}
-          aria-label={`Go to highlight ${index + 1}`}
-        />
-      ))}
+      {Array.from({ length: total }).map((_, index) => {
+        const isSelected = active === index;
+        return (
+          <button
+            key={index}
+            onClick={() => onDotClick(index)}
+            className={cn(
+              "w-2 h-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50",
+              isSelected ? "bg-white scale-125" : "bg-white/40 hover:bg-white/60"
+            )}
+            role="tab"
+            aria-selected={isSelected ? "true" : "false"}
+            aria-label={`Go to highlight ${index + 1}`}
+          />
+        );
+      })}
     </div>
   );
 };
@@ -125,7 +128,7 @@ const HeroSection = () => {
     },
     {
       icon: Rocket,
-      text: "Co-Founder of AQUAE Labs and MindWaveDAO",
+      text: "Co-Founder of AQUAE Labs and MindWaveDAO.com",
       id: "leadership"
     },
     {
@@ -135,7 +138,7 @@ const HeroSection = () => {
     },
     {
       icon: DollarSign,
-      text: "$2.4B+ in Bitcoin-based ecosystem initiatives",
+      text: "$3B+ in Bitcoin-based ecosystem initiatives",
       id: "impact"
     }
   ];
