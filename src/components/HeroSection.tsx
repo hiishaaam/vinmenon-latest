@@ -133,12 +133,12 @@ const HeroSection = () => {
     },
     {
       icon: Mic,
-      text: "Speaker at UNGA, APEA, and Forbes Councils",
+      text: "Speaker at UNGA, APEA, Forbes Councils and BFI Summit",
       id: "speaking"
     },
     {
       icon: DollarSign,
-      text: "$3B+ in Bitcoin-based ecosystem initiatives",
+      text: "$3B+ initiatives through MinndWaveDAO.com",
       id: "impact"
     }
   ];
